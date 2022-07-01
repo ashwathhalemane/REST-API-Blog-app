@@ -12,7 +12,7 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.16.2",
     "moment": "^2.21.0",
-    "moment-timezone": "^0.5.14",
+    "moment-timezone": "^0.5.34",
     "mongoose": "^4.13.5",
     "pino": "^4.15.0",
     "shortid": "^2.2.8"
