@@ -12,9 +12,9 @@ jobs:
       - run: 
           name: Install app
           command: npm install
-      - run:
-          command: npm run build
-          name: Build app
+#       - run:
+#           command: npm run build
+#           name: Build app
       - persist_to_workspace:
           root: ~/project
           paths:
