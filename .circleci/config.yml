@@ -13,19 +13,35 @@ jobs:
       - run: 
           name: Install app
           command: npm install
-      - snyk/scan
+      - run:
+          name: Install Snyk
+          command: npm install -g snyk
+      - run:
+          name: Install Snyk to HTML
+          command: npm install -g snyk-to-html
+      - run:
+          name: Snyk Open Source
+          command: snyk test --severity-threshold=high || true
+      - run:
+          name: Snyk Code
+          command: snyk code test --json | snyk-to-html -o code-results.html
+      - store_artifacts:
+          path: code-results.html
       - persist_to_workspace:
           root: ~/project
           paths:
             - .
 
+  snyk-pipe:
+    steps:
+      - checkout
+      - snyk/scan:
+          monitor-on-build: false
+          fail-on-issues: false
+          
 workflows:
   test_my_app:
     jobs:
       - build_and_test
-#       - deploy:
-#           requires:
-#             - build_and_test # only deploy if the build_and_test job has completed
-#           filters:
-#             branches:
-#               only: main # only deploy when on main
+      - snyk-pipe
+        
