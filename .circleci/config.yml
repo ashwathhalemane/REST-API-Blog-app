@@ -16,17 +16,17 @@ jobs:
       - run:
           name: Install Snyk
           command: npm install -g snyk
-      - run:
-          name: Install Snyk to HTML
-          command: npm install -g snyk-to-html
+#       - run:
+#           name: Install Snyk to HTML
+#           command: npm install -g snyk-to-html
       - run:
           name: Snyk Open Source
           command: snyk test --severity-threshold=high || true
-      - run:
-          name: Snyk Code
-          command: snyk code test --json | snyk-to-html -o code-results.html
-      - store_artifacts:
-          path: code-results.html
+#       - run:
+#           name: Snyk Code
+#           command: snyk code test --json | snyk-to-html -o code-results.html
+#       - store_artifacts:
+#           path: code-results.html
 #       - snyk/scan:
 #           monitor-on-build: false
 #           fail-on-issues: false
