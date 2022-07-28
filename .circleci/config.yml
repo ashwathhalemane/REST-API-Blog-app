@@ -1,43 +1,39 @@
 version: 2.1
-orbs:
-  node: circleci/node@5.0.2
-  snyk: snyk/snyk@1.2.3
 
 jobs:
-  build_and_test: # this can be any name you choose
-    executor: node/default # use the default executor defined within the orb
+  semgrep-scan:
+    parameters: 
+      diff_branch:
+        type: string
+        default: 
+
+    environment:
+      # Scan changed files in PRs, block on new issues only (existing issues ignored)
+      SEMGREP_BASELINE_REF: << parameters.diff_branch >>
+      SEMGREP_REPO_URL: << pipeline.project.git_url >>
+      SEMGREP_BRANCH: << pipeline.git.branch >>
+
+      # Change job timeout (default is 1800 seconds; set to 0 to disable)
+      # SEMGREP_TIMEOUT: 300
+
+    docker:
+      - image: returntocorp/semgrep
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: npm
-      - run: 
-          name: Install app
-          command: npm install
       - run:
-          name: Install Snyk
-          command: npm install -g snyk
-#       - run:
-#           name: Install Snyk to HTML
-#           command: npm install -g snyk-to-html
+          name: "Set environment variables" # for PR comments and  in-app hyperlinks to findings
+          command: |
+              echo 'export SEMGREP_COMMIT=$CIRCLE_SHA1' >> $BASH_ENV
+              echo 'export SEMGREP_PR_ID=${CIRCLE_PULL_REQUEST##*/}' >> $BASH_ENV
+              echo 'export SEMGREP_JOB_URL=$CIRCLE_BUILD_URL' >> $BASH_ENV
+              echo 'export SEMGREP_REPO_NAME=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME' >> $BASH_ENV
       - run:
-          name: Snyk Open Source
-          command: snyk test --severity-threshold=high || true
-#       - run:
-#           name: Snyk Code
-#           command: snyk code test --json | snyk-to-html -o code-results.html
-#       - store_artifacts:
-#           path: code-results.html
-#       - snyk/scan:
-#           monitor-on-build: false
-#           fail-on-issues: false
-      - persist_to_workspace:
-          root: ~/project
-          paths:
-            - .
-            
+          name: "Semgrep scan"
+          command: semgrep ci --baseline-commit $SEMGREP_BASELINE_REF
 workflows:
-  test_my_app:
+  Semgrep:
     jobs:
-      - build_and_test
-#       - snyk-pipe
-        
+      - semgrep-scan:
+          filters:
+            branches:
+              only:

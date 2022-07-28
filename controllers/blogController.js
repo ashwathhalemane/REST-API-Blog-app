@@ -163,7 +163,7 @@ let editBlog = (req, res) => {
             } else {
                 console.log('Blog Edited Successfully')
                 let apiResponse = response.generate(false, 'Blog Edited Successfully.', 200, result)
-                res.send(escapeHTML(apiResponse))
+                res.send(apiResponse)
             }
         })
     }
@@ -212,7 +212,7 @@ let deleteBlog = (req, res) => {
         res.send(apiResponse)
     } else {
 
-        BlogModel.remove({ 'blogId': req.params.blogId.toString() }, (err, result) => {
+        BlogModel.remove({ 'blogId': req.params.blogId }, (err, result) => {
             if (err) {
                 console.log('Error Occured.')
                 logger.error(`Error Occured : ${err}`, 'Database', 10)
