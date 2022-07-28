@@ -1,30 +1,43 @@
-orbs:
-  cxflow: checkmarx-ts/cxflow@1.0.5
 version: 2.1
-workflows:
-  sast-scan:
-    jobs:
-      - cxflow/scan:
-          ast-apiUrl: 'http://cx-ast-testing.dev.checkmarx-ts.com'
-          ast-incremental: false
-          ast-preset: Checkmarx Default
-          ast-webAppUrl: 'http://cx-ast-testing.dev.checkmarx-ts.com'
-          cxgo-base-url: 'https://api.checkmarx.net'
-          cxgo-configuration: Default Configuration
-          cxgo-multi-tenant: true
-          cxgo-portal-url: 'https://cloud.checkmarx.net'
-          cxgo-scan-preset: '1,2,3,4,5,9'
-          filters:
-            branches:
-              only:
-                - master
-          preset: Checkmarx Express
-          project: CxProject
-          report-file: vulns.json
-          sca-accessControlUrl: 'https://platform.checkmarx.net'
-          sca-apiUrl: 'https://api.scacheckmarx.com'
-          sca-appUrl: 'https://sca.scacheckmarx.com'
-          scanners: 'sca,sast'
-          team: \CxServer\SP\Checkmarx
-  version: 2
+orbs:
+  node: circleci/node@5.0.2
+  snyk: snyk/snyk@1.2.3
 
+jobs:
+  build_and_test: # this can be any name you choose
+    executor: node/default # use the default executor defined within the orb
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run: 
+          name: Install app
+          command: npm install
+      - run:
+          name: Install Snyk
+          command: npm install -g snyk
+      - run:
+          name: Install Snyk to HTML
+          command: npm install -g snyk-to-html
+      - run:
+          name: Snyk Open Source
+          command: snyk test --severity-threshold=high || true
+      - run:
+          name: Snyk Code
+          command: snyk code test --json | snyk-to-html -o code-results.html
+      - store_artifacts:
+          path: code-results.html
+#       - snyk/scan:
+#           monitor-on-build: false
+#           fail-on-issues: false
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - .
+            
+workflows:
+  test_my_app:
+    jobs:
+      - build_and_test
+#       - snyk-pipe
+        
