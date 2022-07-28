@@ -12,10 +12,14 @@
     "cookie-parser": "^1.4.6",
     "express": "^4.16.2",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "moment": "^2.29.4",
 =======
     "moment": "^2.29.3",
 >>>>>>> master
+=======
+    "moment": "^2.29.4",
+>>>>>>> 9f04995a33e6aea8a73a17d94cf9f4a76b307d40
     "moment-timezone": "^0.5.14",
     "mongoose": "^4.13.21",
     "pino": "^4.15.0",
